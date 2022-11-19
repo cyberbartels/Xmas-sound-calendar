@@ -23,7 +23,8 @@
 #define busyPin 4
 
 #define xmasday 24
-#define numMusicTracks 24
+#define numMusicTracks 30
+#define numTagReaderTracks 9
 //Reference pictures
 #define snow_man_0 0
 #define snow_man_1 1
@@ -89,7 +90,7 @@ void setup() {
   Serial.println(F("DFPlayer Mini online."));
 
   mp3DFPlayer.setTimeOut(500);  //Set serial communictaion time out 500ms
-  mp3DFPlayer.volume(10);       //Set volume value. From 0 to 30
+  mp3DFPlayer.volume(15);       //Set volume value. From 0 to 30
 
   mp3DFPlayer.playFolder(99, 1);  //Play greeting mp3
   delay(2000);                    // Wait so that the mp3 player can start
@@ -165,6 +166,13 @@ void loop() {
 void handleCommand(byte code) {
 //  Serial.print(F("Code: "));
 //  Serial.println(code, DEC);
+  if( (code > 70) && (code < 80)) //Read tag
+  {
+    readTag(code);
+    return;
+  }
+
+  //State changing command
   switch (code) {
     case 100:
       dailyTrackMode = 100;
@@ -179,9 +187,10 @@ void handleCommand(byte code) {
       dailyTrackMode = 3;
       break;
     case 99:
+      //XMas special
       dailyTrackMode = 100; //reset to random music on Xmas!
       playXMasSpecial();
-      break;
+      break;      
     default:
       dailyTrackMode = 100;
       break;
@@ -226,6 +235,15 @@ void playXMasSpecial() {
   playRandomMusic();
 }
 
+void readTag(byte tagCode) {
+  //Play a random track from folder tag code
+  byte track = random(1, numTagReaderTracks-1);
+  mp3DFPlayer.playFolder(tagCode, track); 
+  delay(2000); //let mp3 player start
+  showAnimatedDailyPic(xmasday); //Assume that additional tags will be presented on Xmas day
+  display.clearDisplay();
+}
+
 void handleDay(byte day) {
   loadXMas(day);
   playDailyCountdown(day);
@@ -241,12 +259,16 @@ void handleDay(byte day) {
 }
 
 void playDailyCountdown(byte day) {
+  mp3DFPlayer.playFolder(day, 100);  //countdown mp3
+  delay(2000); //let mp3 player start
+  showAnimatedDailyPic(day);
+  display.clearDisplay();
+}
+
+void showAnimatedDailyPic(byte day) {
   int loopCounter = 0;
   byte pic_0;
   byte pic_1;
-  mp3DFPlayer.playFolder(day, 100);  //countdown mp3
-  delay(2000); //let mp3 player start
-  loopCounter = 0;
   if (day == xmasday) {
     pic_0 = santa_sledge_0;
     pic_1 = santa_sledge_1;
@@ -266,7 +288,6 @@ void playDailyCountdown(byte day) {
     loopCounter++;
     delay(500);
   } while (isPlaying());
-  display.clearDisplay();
 }
 
 void playRandomMusic() {
