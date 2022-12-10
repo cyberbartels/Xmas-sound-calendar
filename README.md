@@ -51,7 +51,7 @@ The following folders and files are needed in the standard setup:
 ### RFID tags
 The tags need only one byte to be set. In the code it is sector 1, block 4, 1st byte (that's as arbitrary as it can get :-) ).
 - 1-24 denotes days
-- 78-79: codes for gift tags to be read
+- 71-79: codes for gift tags to be read
 - 99 is a special code for xmas day
 - 100 is the random music mode
 - 101 - 103: tracks (mode)
